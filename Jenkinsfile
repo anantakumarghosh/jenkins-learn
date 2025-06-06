@@ -1,24 +1,34 @@
 pipeline {
-    agent {
-        docker {
-            image 'node:lts-alpine'
-            args '-u root'  // run as root to avoid permission issues
-        }
-    }
+    agent none  // We'll define agent per stage
+
     stages {
-        stage('Install bash') {
+        stage('Node.js Stage') {
+            agent {
+                docker {
+                    image 'node:22.16.0-alpine3.22'
+                    args '-u root'
+                }
+            }
             steps {
-                // Alpine uses `apk`, and we install bash because some Jenkins scripts expect it
                 sh '''
-                    apk update
                     apk add --no-cache bash
+                    bash -c "echo Node Version: $(node -v)"
                 '''
             }
         }
-        stage('Run Node') {
+
+        stage('Maven Stage') {
+            agent {
+                docker {
+                    image 'maven:3.9.6-eclipse-temurin-17-alpine'
+                    args '-u root'
+                }
+            }
             steps {
-                // Now explicitly run via bash
-                sh 'bash -c "node -v"'
+                sh '''
+                    apk add --no-cache bash
+                    bash -c "echo Maven Version: $(mvn -v)"
+                '''
             }
         }
     }
