@@ -27,7 +27,7 @@ pipeline {
             steps {
                 sh '''
                     apk add --no-cache bash
-                    bash -c "echo Maven Version: $(mvn -v)"
+                    mvn -v
                 '''
             }
         }
